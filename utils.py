@@ -7,11 +7,12 @@ import copy
 
 from loguru import logger
 
+from dotenv import load_dotenv
+load_dotenv()
 
 DEBUG = int(os.environ.get("DEBUG", "0"))
 
-
-def generate_together(
+def generate_groq(
     model,
     messages,
     max_tokens=2048,
@@ -25,7 +26,7 @@ def generate_together(
 
         try:
 
-            endpoint = "https://api.together.xyz/v1/chat/completions"
+            endpoint = "https://api.groq.com/openai/v1/chat/completions"
 
             if DEBUG:
                 logger.debug(
@@ -41,7 +42,7 @@ def generate_together(
                     "messages": messages,
                 },
                 headers={
-                    "Authorization": f"Bearer {os.environ.get('TOGETHER_API_KEY')}",
+                    "Authorization": f"Bearer {os.environ.get('GROQ_API_KEY')}",
                 },
             )
             if "error" in res.json():
@@ -74,17 +75,17 @@ def generate_together(
     return output
 
 
-def generate_together_stream(
+def generate_groq_stream(
     model,
     messages,
     max_tokens=2048,
     temperature=0.7,
 ):
-    endpoint = "https://api.together.xyz/v1"
+    endpoint = "https://api.groq.com/openai/v1"
     client = openai.OpenAI(
-        api_key=os.environ.get("TOGETHER_API_KEY"), base_url=endpoint
+        api_key=os.environ.get("GROQ_API_KEY"), base_url=endpoint
     )
-    endpoint = "https://api.together.xyz/v1/chat/completions"
+    endpoint = "https://api.groq.com/openai/v1/chat/completions"
     response = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -166,7 +167,7 @@ def generate_with_references(
     references=[],
     max_tokens=2048,
     temperature=0.7,
-    generate_fn=generate_together,
+    generate_fn=generate_groq,
 ):
 
     if len(references) > 0:
